@@ -15,8 +15,7 @@ public class Credit {
 
     @Id
     private Long id;
+    private int creditBalance;
     private String creditResult;
-
-
 
 }
