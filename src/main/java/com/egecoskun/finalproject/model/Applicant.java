@@ -30,4 +30,15 @@ public class Applicant {
     @JoinColumn(name = "credit_rating_id", referencedColumnName = "id")
     private CreditRating creditRating;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinTable(name = "applicant_credit",
+            joinColumns = {@JoinColumn(name = "applicant_id")},
+            inverseJoinColumns = {@JoinColumn(name = "credit_id")}
+    )
+    private Credit credit;
+
+
+
+
+
 }
