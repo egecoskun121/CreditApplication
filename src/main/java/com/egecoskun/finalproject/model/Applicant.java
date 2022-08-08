@@ -20,7 +20,7 @@ public class Applicant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigInteger identificationNumber;
+    private Long identificationNumber;
     private String firstName;
     private String lastName;
     private double monthlyIncome;
@@ -36,9 +36,6 @@ public class Applicant {
             inverseJoinColumns = {@JoinColumn(name = "credit_id")}
     )
     private Credit credit;
-
-
-
 
 
 }
