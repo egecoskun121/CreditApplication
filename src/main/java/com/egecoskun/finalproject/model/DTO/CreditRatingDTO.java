@@ -4,5 +4,7 @@ import lombok.Data;
 
 @Data
 public class CreditRatingDTO {
+
     private int creditRating;
+
 }
