@@ -6,7 +6,6 @@ import com.egecoskun.finalproject.model.DTO.ApplicantDTO;
 import com.egecoskun.finalproject.services.ApplicantService;
 import com.egecoskun.finalproject.services.CreditRatingService;
 import com.egecoskun.finalproject.services.CreditService;
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import java.util.List;
 @RequestMapping("/api/v1/applicant")
 public class ApplicantController {
 
-    private static final Gson gson = new Gson();
 
     private ApplicantService applicantService;
     private CreditService creditService;
@@ -45,12 +43,12 @@ public class ApplicantController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity createNewJobSeeker(@RequestBody ApplicantDTO applicantDTO) {
+    public ResponseEntity createNewApplicant(@RequestBody ApplicantDTO applicantDTO) {
         Applicant applicant = applicantService.create(applicantDTO);
 
         if (applicant == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Job seeker could not be created successfully");
+                    .body("Applicant could not be created successfully");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(applicant);
     }
@@ -63,26 +61,17 @@ public class ApplicantController {
 
 
     @PutMapping("/apply")
-    public ResponseEntity applyToCredit(@RequestParam(name = "id") Long applicantId, @RequestParam(name = "jobId") Long creditId) {
+    public ResponseEntity applyToCredit(@RequestParam(name = "id") Long applicantId) {
 
-        Applicant applicant = applicantService.getById(applicantId);
-        Credit credit = creditService.getById(creditId);
+        applicantService.applyToCredit(applicantId);
 
-        applicant.setCredit(credit);
-
-
-        if (applicant.getCredit() == null) {
+        /*if (applicant.getCredit() == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Could not apply to credit");
         } else {
             return ResponseEntity.status(HttpStatus.OK).body("Applied to credit!");
-        }
+        }*/
     }
 
-    @GetMapping("/creditresult/{id}")
-    public ResponseEntity getCreditResultById(@PathVariable("id") Long applicantId) {
-        Applicant byId = applicantService.getById(applicantId);
-       String creditResult= byId.getCredit().getCreditResult();
-        return ResponseEntity.status(HttpStatus.OK).body(creditResult);
-    }
+
 }
