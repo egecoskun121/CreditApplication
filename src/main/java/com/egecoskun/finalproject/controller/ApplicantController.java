@@ -83,6 +83,6 @@ public class ApplicantController {
     public ResponseEntity getCreditResultById(@PathVariable("id") Long applicantId) {
         Applicant byId = applicantService.getById(applicantId);
        String creditResult= byId.getCredit().getCreditResult();
-        return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(creditResult));
+        return ResponseEntity.status(HttpStatus.OK).body(creditResult);
     }
 }

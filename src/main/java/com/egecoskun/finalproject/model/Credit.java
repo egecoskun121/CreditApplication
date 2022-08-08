@@ -17,4 +17,6 @@ public class Credit {
     private Long id;
     private String creditResult;
 
+
+
 }

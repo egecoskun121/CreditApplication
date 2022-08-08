@@ -18,19 +18,19 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class CreditService {
-
+    
     private final CreditRepository creditRepository;
 
     @Autowired
     public CreditService(CreditRepository creditRepository) {
         this.creditRepository = creditRepository;
     }
-
+    
     public List<Credit> getAllCredits() {
         List<Credit> allCredits = creditRepository.findAll();
         return allCredits;
     }
-
+    
     public Credit getById(Long id) {
         Optional<Credit> byId = creditRepository.findById(id);
         return byId.orElseThrow(() -> {
