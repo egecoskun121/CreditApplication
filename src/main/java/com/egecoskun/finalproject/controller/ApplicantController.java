@@ -1,17 +1,17 @@
 package com.egecoskun.finalproject.controller;
 
 import com.egecoskun.finalproject.model.Applicant;
-import com.egecoskun.finalproject.model.Credit;
 import com.egecoskun.finalproject.model.DTO.ApplicantDTO;
 import com.egecoskun.finalproject.services.ApplicantService;
-import com.egecoskun.finalproject.services.CreditRatingService;
-import com.egecoskun.finalproject.services.CreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/applicant")
@@ -19,29 +19,36 @@ public class ApplicantController {
 
 
     private ApplicantService applicantService;
-    private CreditService creditService;
-    private CreditRatingService creditRatingService;
+
 
     @Autowired
-    public ApplicantController(ApplicantService applicantService, CreditService creditService, CreditRatingService creditRatingService) {
+    public ApplicantController(ApplicantService applicantService) {
         this.applicantService = applicantService;
-        this.creditService = creditService;
-        this.creditRatingService = creditRatingService;
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/all")
     public ResponseEntity getAllApplicants() {
-        List<Applicant> allJobSeekers = applicantService.getAllApplicants();
+        List<Applicant> allApplicants = applicantService.getAllApplicants();
 
-        return ResponseEntity.ok(allJobSeekers);
+        return ResponseEntity.ok(allApplicants);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity getApplicantById(@PathVariable("id") Long id) {
         Applicant byId = applicantService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(byId);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CLIENT')")
+    @GetMapping("/byIn/{in}")
+    public ResponseEntity getApplicantByIdentificationNumber(@PathVariable("in") Long identificationNumber) {
+        Optional<Applicant> byIn = applicantService.getByIdentificationNumber(identificationNumber);
+        return ResponseEntity.status(HttpStatus.OK).body(byIn);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CLIENT')")
     @PostMapping("/create")
     public ResponseEntity createNewApplicant(@RequestBody ApplicantDTO applicantDTO) {
         Applicant applicant = applicantService.create(applicantDTO);
@@ -53,25 +60,45 @@ public class ApplicantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(applicant);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity deleteApplicant(@RequestParam(name = "id") Long id) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity deleteApplicant(@PathVariable(name = "id") Long id) {
         applicantService.delete(id);
         return ResponseEntity.status(HttpStatus.OK).body("Related applicant deleted successfully");
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PutMapping("/update/{id}")
+    public ResponseEntity updateApplicant(@RequestBody ApplicantDTO applicantDTO,@PathVariable(name = "id") Long id) {
+        applicantService.update(applicantDTO,id);
+        return ResponseEntity.status(HttpStatus.OK).body("Related applicant updated successfully");
+    }
 
-    @PutMapping("/apply")
-    public ResponseEntity applyToCredit(@RequestParam(name = "id") Long applicantId) {
+
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CLIENT')")
+    @PutMapping("/apply/{id}")
+    public ResponseEntity applyToCredit(@PathVariable(name = "id") Long applicantId) {
 
         applicantService.applyToCredit(applicantId);
+        Applicant applicant=applicantService.getById(applicantId);
 
-        /*if (applicant.getCredit() == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Could not apply to credit");
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body("Applied to credit!");
-        }*/
+
+         if (Objects.equals(applicant.getCredit().getCreditResult(), "Kredi Sonucu : Onay")) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("""
+                            Applied to credit succesfully.
+                            """+applicant.getCredit().getCreditResult());
+        } else if(Objects.equals(applicant.getCredit().getCreditResult(), "Kredi Sonucu : Red")) {
+             return ResponseEntity.status(HttpStatus.OK)
+                     .body("""
+                            Applied to credit succesfully.
+                            """+applicant.getCredit().getCreditResult());
+        }else{
+             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Could not applied to credit!");
+         }
     }
+
+
 
 
 }
