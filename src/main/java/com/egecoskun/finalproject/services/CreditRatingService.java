@@ -21,12 +21,11 @@ public class CreditRatingService {
     private final int LOWER_BOUND=0;
     private final int UPPER_BOUND=1900;
     private final CreditRatingRepository creditRatingRepository;
-    private final ApplicantService applicantService;
 
     @Autowired
-    public CreditRatingService(CreditRatingRepository creditRatingRepository, ApplicantService applicantService) {
+    public CreditRatingService(CreditRatingRepository creditRatingRepository) {
         this.creditRatingRepository = creditRatingRepository;
-        this.applicantService = applicantService;
+
     }
 
     public CreditRating getById(Long id) {
@@ -37,13 +36,7 @@ public class CreditRatingService {
         });
     }
 
-    public CreditRating getByApplicantId(Long id) {
-        Optional<CreditRating> byId = Optional.ofNullable(applicantService.getById(id).getCreditRating());
-        return byId.orElseThrow(() -> {
-            log.error("Credit rating not found by applicant id : " + id);
-            return new EntityNotFoundException("Credit rating", "applicant id : " + id);
-        });
-    }
+
 
     public int getRandomCreditRating(){
         Random random = new Random();
@@ -51,8 +44,8 @@ public class CreditRatingService {
         return randomCreditRating;
     }
 
-    public CreditRating create(CreditRatingDTO creditRatingDTO) {
-        CreditRating creditRating = CreditRatingMapper.toEntity(creditRatingDTO);
+    public CreditRating create() {
+        CreditRating creditRating = new CreditRating();
         creditRating.setCreditRating(getRandomCreditRating());
         return creditRatingRepository.save(creditRating);
     }

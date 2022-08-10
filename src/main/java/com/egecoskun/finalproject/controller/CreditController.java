@@ -11,6 +11,7 @@ import com.egecoskun.finalproject.services.CreditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -33,7 +34,7 @@ public class CreditController {
         this.applicantRepository = applicantRepository;
     }
 
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/all")
     public ResponseEntity getAllCredits(){
         List<Credit> allCredits = creditService.getAllCredits();
@@ -41,6 +42,7 @@ public class CreditController {
         return ResponseEntity.ok(allCredits);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/id")
     public ResponseEntity getCreditById(@PathVariable("id") Long id){
         Credit credit = creditService.getById(id);
@@ -48,6 +50,7 @@ public class CreditController {
         return ResponseEntity.status(HttpStatus.OK).body(credit);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CLIENT')")
     @GetMapping("/{in}")
     public ResponseEntity getCreditByIdentificationNumber(@PathVariable("in") Long identificationNumber){
         Credit byId = creditService.getById(identificationNumber);
@@ -55,6 +58,7 @@ public class CreditController {
         return ResponseEntity.status(HttpStatus.OK).body(byId);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create/{id}")
     public ResponseEntity createCredit(@RequestBody CreditDTO creditDTO,@PathVariable("id") Long id){
         Applicant applicant = applicantService.getById(id);
@@ -70,8 +74,9 @@ public class CreditController {
         return ResponseEntity.status(HttpStatus.CREATED).body(credit);
     }
 
-    @DeleteMapping
-    public ResponseEntity deleteCredit(@RequestParam(name = "id") Long id) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity deleteCredit(@PathVariable(name = "id") Long id) {
         creditService.delete(id);
 
         return ResponseEntity.status(HttpStatus.OK).body("Related credit deleted successfully");
