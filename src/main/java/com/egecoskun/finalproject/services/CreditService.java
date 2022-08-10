@@ -1,7 +1,6 @@
 package com.egecoskun.finalproject.services;
 
 import com.egecoskun.finalproject.exception.EntityNotFoundException;
-import com.egecoskun.finalproject.model.Applicant;
 import com.egecoskun.finalproject.model.Credit;
 import com.egecoskun.finalproject.model.DTO.CreditDTO;
 
@@ -20,19 +19,21 @@ import java.util.TreeMap;
 @Service
 public class CreditService {
 
-    TreeMap<Integer, Integer> gradeMap = (TreeMap<Integer, Integer>) Map.of(0,0,
-                                                                            500,1,
-                                                                            1000,2);
+    public static TreeMap<Integer, Integer> gradeMap = new TreeMap<>();
+    static {
+        gradeMap.put(0,0); //0-499
+        gradeMap.put(500,1); //500-999
+        gradeMap.put(1000,2); //1000-1899
+        gradeMap.put(1900,3); //1900-+
+    }
 
-
-    
     private final CreditRepository creditRepository;
-    private final ApplicantService applicantService;
+
 
     @Autowired
-    public CreditService(CreditRepository creditRepository, ApplicantService applicantService) {
+    public CreditService(CreditRepository creditRepository) {
         this.creditRepository = creditRepository;
-        this.applicantService = applicantService;
+
     }
 
     
@@ -49,8 +50,8 @@ public class CreditService {
         });
     }
 
-    public Credit create(CreditDTO creditDTO) {
-        Credit credit = CreditMapper.toEntity(creditDTO);
+    public Credit create() {
+        Credit credit = new Credit();
         return creditRepository.save(credit);
     }
 
@@ -58,14 +59,6 @@ public class CreditService {
         getById(id);
         creditRepository.deleteById(id);
     }
-
-    public Credit getCreditByIdentificationNumber(Long identificationNumber){
-        Optional<Applicant> applicant = applicantService.getByIdentificationNumber(identificationNumber);
-        Credit credit = applicant.get().getCredit();
-        return credit;
-    }
-
-
 
 
 }
