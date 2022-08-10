@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// We should use OncePerRequestFilter since we are doing a database call, there is no point in doing this more than once
+
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private JwtTokenProvider jwtTokenProvider;
@@ -28,7 +28,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (Exception ex) {
-            //this is very important, since it guarantees the user is not authenticated at all
+
             SecurityContextHolder.clearContext();
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
             return;

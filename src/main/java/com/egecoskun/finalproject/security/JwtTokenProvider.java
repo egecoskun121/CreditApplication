@@ -33,8 +33,8 @@ public class JwtTokenProvider {
     @Value("${security.jwt.token.secret-key:default-key}")
     private String secretKey;
 
-    @Value("${security.jwt.token.expire-time:100000}")
-    private long validityInMilliseconds; // = 1000 * 60 * 60 * 24; // 1 day
+    @Value("${security.jwt.token.expire-time:100000}") // 1 day
+    private long validityInMilliseconds;
 
     @Autowired
     private MyUserDetails myUserDetails;
@@ -53,11 +53,11 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
-        return Jwts.builder()//
-                .setClaims(claims)//
-                .setIssuedAt(now)//
-                .setExpiration(validity)//
-                .signWith(SignatureAlgorithm.HS256, secretKey)//
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
