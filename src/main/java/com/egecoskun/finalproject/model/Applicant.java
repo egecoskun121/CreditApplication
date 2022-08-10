@@ -27,7 +27,7 @@ public class Applicant {
     private String phoneNumber;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "credit_rating_id", referencedColumnName = "id")
+    @JoinColumn(name = "id", referencedColumnName = "id")
     private CreditRating creditRating;
 
     @OneToOne(cascade = CascadeType.ALL)
