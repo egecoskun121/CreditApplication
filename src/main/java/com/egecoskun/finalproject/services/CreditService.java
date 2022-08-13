@@ -1,6 +1,7 @@
 package com.egecoskun.finalproject.services;
 
 import com.egecoskun.finalproject.exception.EntityNotFoundException;
+import com.egecoskun.finalproject.interfaces.SMSInterface;
 import com.egecoskun.finalproject.model.Credit;
 import com.egecoskun.finalproject.model.DTO.CreditDTO;
 
@@ -17,7 +18,7 @@ import java.util.TreeMap;
 
 @Slf4j
 @Service
-public class CreditService {
+public class CreditService implements SMSInterface {
 
     public static TreeMap<Integer, Integer> gradeMap = new TreeMap<>();
     static {
@@ -36,7 +37,6 @@ public class CreditService {
 
     }
 
-    
     public List<Credit> getAllCredits() {
         List<Credit> allCredits = creditRepository.findAll();
         return allCredits;
@@ -60,5 +60,8 @@ public class CreditService {
         creditRepository.deleteById(id);
     }
 
-
+    @Override
+    public String sendSMS(String phoneNumber) {
+        return "Credit result SMS sent to registered phone number: "+phoneNumber;
+    }
 }

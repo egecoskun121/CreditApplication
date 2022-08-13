@@ -9,7 +9,8 @@ import java.util.Optional;
 
 public interface ApplicantRepository extends JpaRepository<Applicant,Long> {
 
-    @Query(value = "SELECT * FROM applicant WHERE applicant.identification_number=:identificationNumber",nativeQuery = true)
-    Optional<Applicant> getApplicantByIdentificationNumber(@Param("identificationNumber") Long identificationNumber);
+    // getting rid of the optional
+    @Query(value = "SELECT id FROM applicant WHERE applicant.identification_number=:identificationNumber",nativeQuery = true)
+    Long getApplicantByIdentificationNumber(@Param("identificationNumber") Long identificationNumber);
 
 }

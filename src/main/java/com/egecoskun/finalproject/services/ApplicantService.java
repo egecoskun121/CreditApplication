@@ -2,6 +2,7 @@ package com.egecoskun.finalproject.services;
 
 
 import com.egecoskun.finalproject.exception.ApplicantNotFoundException;
+import com.egecoskun.finalproject.exception.CreditException;
 import com.egecoskun.finalproject.exception.EntityNotFoundException;
 import com.egecoskun.finalproject.model.Applicant;
 import com.egecoskun.finalproject.model.Credit;
@@ -71,30 +72,21 @@ public class ApplicantService {
     }
 
     public Applicant update(ApplicantDTO applicantDTO,Long id){
+            Applicant byId = getById(id);
 
-        Applicant byId = getById(id);
-
-        if(applicantDTO.getMonthlyIncome()!=byId.getMonthlyIncome()){
             byId.setMonthlyIncome(applicantDTO.getMonthlyIncome());
-        }
-        if(!Objects.equals(applicantDTO.getFirstName(), byId.getFirstName())){
             byId.setFirstName(applicantDTO.getFirstName());
-        }
-        if(!Objects.equals(applicantDTO.getLastName(), byId.getLastName())){
             byId.setLastName(applicantDTO.getLastName());
-        }
-        if(!Objects.equals(applicantDTO.getPhoneNumber(), byId.getPhoneNumber())){
             byId.setPhoneNumber(applicantDTO.getPhoneNumber());
-        }
-        if(!Objects.equals(applicantDTO.getIdentificationNumber(), byId.getIdentificationNumber())){
             byId.setIdentificationNumber(applicantDTO.getIdentificationNumber());
-        }
 
         return applicantRepository.save(byId);
     }
 
-    public Optional<Applicant> getByIdentificationNumber(Long id){
-        Optional<Applicant> byIdentificationNumber = applicantRepository.getApplicantByIdentificationNumber(id);
+    public Optional<Applicant> getByIdentificationNumber(Long identificationNumber){
+
+        Long id = applicantRepository.getApplicantByIdentificationNumber(identificationNumber);
+        Optional<Applicant> byIdentificationNumber=applicantRepository.findById(id);
         return Optional.ofNullable(byIdentificationNumber.orElseThrow(() -> {
             log.error("Applicant not found by identification number : " + id);
             return new ApplicantNotFoundException("Applicant", id);
@@ -102,28 +94,31 @@ public class ApplicantService {
     }
 
     public Applicant applyToCredit(@RequestParam(name = "id") Long applicantId) {
-
         Applicant applicant = getById(applicantId);
-        Credit credit = creditService.create();
 
-        int creditRatingEvaluation=creditService.gradeMap.floorEntry(applicant.getCreditRating().getCreditRating()).getValue();
+        if(applicant.getCredit()==null){
+            Credit credit = creditService.create();
+            int creditRatingEvaluation=creditService.gradeMap.floorEntry(applicant.getCreditRating().getCreditRating()).getValue();
 
-        if(creditRatingEvaluation==0){ //0-499
-            credit.setCreditResult("Kredi Sonucu : Red");
-            credit.setCreditBalance(0);
-        }else if(creditRatingEvaluation==1 && applicant.getMonthlyIncome()<=5000){ // 500-999
-            credit.setCreditResult("Kredi Sonucu : Onay");
-            credit.setCreditBalance(10000);
-        }else if(creditRatingEvaluation==1 && applicant.getMonthlyIncome()>5000){ // 500-999
-            credit.setCreditResult("Kredi Sonucu : Onay");
-            credit.setCreditBalance(20000);
-        }else if(creditRatingEvaluation>1){ // 1000-+
-            credit.setCreditResult("Kredi Sonucu : Onay");
-            credit.setCreditBalance((int) (applicant.getMonthlyIncome()*CREDIT_MULTIPLIER));
+            if(creditRatingEvaluation==0){ //0-499
+                credit.setCreditResult("Credit Result : Declined");
+                credit.setCreditBalance(0);
+            }else if(creditRatingEvaluation==1 && applicant.getMonthlyIncome()<=5000){ // 500-999
+                credit.setCreditResult("Credit Result : Approved");
+                credit.setCreditBalance(10000);
+            }else if(creditRatingEvaluation==1 && applicant.getMonthlyIncome()>5000){ // 500-999
+                credit.setCreditResult("Credit Result : Approved");
+                credit.setCreditBalance(20000);
+            }else if(creditRatingEvaluation>1){ // 1000-+
+                credit.setCreditResult("Credit Result : Approved");
+                credit.setCreditBalance((int) (applicant.getMonthlyIncome()*CREDIT_MULTIPLIER));
+            }
+            creditService.sendSMS(applicant.getPhoneNumber());
+
+            return addCreditToApplicant(credit,applicantId);
+        }else{
+            log.error("Can only apply once to a credit");
+            throw new CreditException("You already applied to a credit!");
         }
-
-       return addCreditToApplicant(credit,applicantId);
     }
-
-
 }

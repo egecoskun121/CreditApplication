@@ -83,15 +83,15 @@ public class ApplicantController {
         Applicant applicant=applicantService.getById(applicantId);
 
 
-         if (Objects.equals(applicant.getCredit().getCreditResult(), "Kredi Sonucu : Onay")) {
+         if (Objects.equals(applicant.getCredit().getCreditResult(), "Credit Result : Approved")) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body("""
-                            Applied to credit succesfully.
+                            Applied to credit successfully.
                             """+applicant.getCredit().getCreditResult());
-        } else if(Objects.equals(applicant.getCredit().getCreditResult(), "Kredi Sonucu : Red")) {
+        } else if(Objects.equals(applicant.getCredit().getCreditResult(), "Credit Result : Declined")) {
              return ResponseEntity.status(HttpStatus.OK)
                      .body("""
-                            Applied to credit succesfully.
+                            Applied to credit successfully.
                             """+applicant.getCredit().getCreditResult());
         }else{
              return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Could not applied to credit!");

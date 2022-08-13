@@ -15,7 +15,7 @@ import java.util.Random;
 
 @Service
 @Slf4j
-public class CreditRatingService {
+public class CreditRatingService{
 
 
     private final int LOWER_BOUND=0;
@@ -36,8 +36,6 @@ public class CreditRatingService {
         });
     }
 
-
-
     public int getRandomCreditRating(){
         Random random = new Random();
         int randomCreditRating = random.nextInt(UPPER_BOUND - LOWER_BOUND) + LOWER_BOUND;
@@ -54,4 +52,6 @@ public class CreditRatingService {
         getById(id);
         creditRatingRepository.deleteById(id);
     }
+
+
 }
