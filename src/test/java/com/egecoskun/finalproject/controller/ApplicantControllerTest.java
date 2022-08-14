@@ -62,10 +62,6 @@ class ApplicantControllerTest {
                 .build();
     }
 
-
-
-
-
     @Test
     void getAllApplicants() throws Exception {
 
