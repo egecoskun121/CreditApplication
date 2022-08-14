@@ -42,17 +42,6 @@ class CreditRatingServiceTest {
     }
 
 
-    @Test
-    void getRandomCreditRating() {
-    }
-
-    @Test
-    void create() {
-    }
-
-    @Test
-    void delete() {
-    }
 
     private List<CreditRating> getSampleCreditRatings() {
         List<CreditRating> sampleList = new ArrayList<>();

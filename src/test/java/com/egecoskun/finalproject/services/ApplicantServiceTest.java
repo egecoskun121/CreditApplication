@@ -198,10 +198,6 @@ class ApplicantServiceTest {
 
         applicantService.applyToCredit(applicantId);
 
-
-
-
-
     }
 
 
