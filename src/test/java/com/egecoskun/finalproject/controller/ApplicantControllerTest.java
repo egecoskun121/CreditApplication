@@ -5,7 +5,6 @@ import com.egecoskun.finalproject.model.Applicant;
 import com.egecoskun.finalproject.model.Credit;
 import com.egecoskun.finalproject.model.DTO.ApplicantDTO;
 import com.egecoskun.finalproject.services.ApplicantService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -30,13 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -58,11 +54,9 @@ class ApplicantControllerTest {
 
     @BeforeEach
     public void setup() {
-        // We would need this line if we would not use the MockitoExtension
-        // MockitoAnnotations.initMocks(this);
-        // Here we can't use @AutoConfigureJsonTesters because there isn't a Spring context
+
         JacksonTester.initFields(this, new ObjectMapper());
-        // MockMvc standalone approach
+
         mvc = MockMvcBuilders.standaloneSetup(applicantController)
                 .setControllerAdvice(new GenericExceptionHandler())
                 .build();
@@ -168,14 +162,40 @@ class ApplicantControllerTest {
     }
 
     @Test
-    void applyToCredit() throws Exception {
+    void applyToCredit_successful() throws Exception {
         Applicant applicant = getTestApplicants().get(0);
-        Credit credit = new Credit(1L,10000,"Onay");
+        Credit credit = new Credit(1L,10000,"Credit Result : Approved");
         applicant.setCredit(credit);
 
 
-
+        when(applicantService.getById(1l)).thenReturn(applicant);
         when(applicantService.applyToCredit(1L)).thenReturn(applicant);
+
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String expectedApplicantJsonStr = ow.writeValueAsString(applicant);
+
+
+        MockHttpServletResponse response = mvc.perform(put("/api/v1/applicant/apply/1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(expectedApplicantJsonStr))
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn().getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+
+    }
+
+    @Test
+    void applyToCredit_fail() throws Exception {
+        Applicant applicant = getTestApplicants().get(0);
+        Credit credit = new Credit(1L,0,"Credit Result : Declined");
+        applicant.setCredit(credit);
+
+
+        when(applicantService.getById(1l)).thenReturn(applicant);
+        when(applicantService.applyToCredit(1L)).thenReturn(applicant);
+
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String expectedApplicantJsonStr = ow.writeValueAsString(applicant);
 
