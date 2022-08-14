@@ -113,6 +113,8 @@ public class ApplicantService {
                 credit.setCreditResult("Credit Result : Approved");
                 credit.setCreditBalance((int) (applicant.getMonthlyIncome()*CREDIT_MULTIPLIER));
             }
+
+            // imaginary sms sent to customer here !
             creditService.sendSMS(applicant.getPhoneNumber());
 
             return addCreditToApplicant(credit,applicantId);
